@@ -1,6 +1,8 @@
+import { Film } from "./film.model";
+
 export interface Acteur {
     id: number;
     nom: string;
     prenom: string;
-    date_de_naissance: string;
+    films: Film[]; // On met une liste de films ici car un acteur peut jouer dans plusieurs films
 }

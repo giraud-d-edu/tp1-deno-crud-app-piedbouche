@@ -7,6 +7,6 @@ export interface Film {
   description : string;
   date_de_sortie : string;
   genre : string;
-  acteurs : Acteur[];
-  notes : Note[];
+  acteurs : Acteur[];  // On met une liste d'acteurs ici car il peut y avoir plusieurs acteurs
+  notes : Note[]; // Liste des notes du film
 }
