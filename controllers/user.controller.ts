@@ -51,14 +51,20 @@ export class UserController {
     ctx.response.body = ConversionService.toUserDTO(updatedUser as UserDBO);
   }
 
-  static async delete(ctx: RouterContext) {
+static async delete(ctx: RouterContext) {
     const id = ctx.params.id!;
-    const success = await userRepo.delete(id);
-    if (!success) {
-      ctx.response.status = 404;
-      ctx.response.body = { message: "User not found" };
-      return;
+    try {
+      const success = await userRepo.delete(id);
+      if (!success) {
+        ctx.response.status = 404;
+        ctx.response.body = { message: "User not found" };
+        return;
+      }
+      ctx.response.status = 204;
+    } catch (error) {
+      console.error("Delete Error:", error);
+      ctx.response.status = 400; // 400 Bad Request si l'ID est mal formé
+      ctx.response.body = { message: "Invalid User ID" };
     }
-    ctx.response.status = 204;
   }
 }
