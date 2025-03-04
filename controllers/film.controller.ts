@@ -2,7 +2,7 @@ import { RouterContext } from "https://deno.land/x/oak/mod.ts";
 import { FilmRepository } from "../repositories/film.repository.ts";
 import { ConversionService } from "../services/conversion.service.ts";
 import { FilmDTO } from "../dtos/film.dto.ts";
-import { Film } from "../models/film.model.ts";
+import { FilmDBO } from "../dbos/film.dbo.ts";
 
 const filmRepo = new FilmRepository();
 
@@ -10,7 +10,7 @@ export class FilmController {
   // Récupère tous les films
   // Code HTTP - 200 OK sur réussite
   static async getAll(ctx: RouterContext) {
-    const films: Film[] = filmRepo.getAll();
+    const films: FilmDBO[] = await filmRepo.getAll();
     ctx.response.status = 200;
     ctx.response.body = films.map(ConversionService.toFilmDTO);
   }
@@ -18,8 +18,8 @@ export class FilmController {
   // Récupère un film par son id
   // Code HTTP - 200 OK si trouvé, 404 Not Found sinon
   static async getById(ctx: RouterContext) {
-    const id = Number(ctx.params.id);
-    const film = filmRepo.getById(id);
+    const id = ctx.params.id!;
+    const film = await filmRepo.getById(id);
     if (!film) {
       ctx.response.status = 404;
       ctx.response.body = { message: "Film not found" };
@@ -32,10 +32,10 @@ export class FilmController {
   // Crée un nouveau film
   // Code HTTP - 201 Created sur réussite
   static async create(ctx: RouterContext) {
-    const body = await ctx.request.body().value;
+    const body = await ctx.request.body.json();
     const filmDTO: FilmDTO = body;
-    const film: Film = ConversionService.toFilm(filmDTO);
-    const createdFilm = filmRepo.create(film);
+    const filmDBO: FilmDBO = ConversionService.toFilmDBO(filmDTO);
+    const createdFilm = await filmRepo.create(filmDBO);
     ctx.response.status = 201;
     ctx.response.body = ConversionService.toFilmDTO(createdFilm);
   }
@@ -43,28 +43,28 @@ export class FilmController {
   // Met à jour un film existant
   // Code HTTP - 200 OK si mis à jour, 404 Not Found sinon
   static async update(ctx: RouterContext) {
-    const id = Number(ctx.params.id);
-    const existingFilm = filmRepo.getById(id);
+    const id = ctx.params.id!;
+    const existingFilm = await filmRepo.getById(id);
     if (!existingFilm) {
       ctx.response.status = 404;
       ctx.response.body = { message: "Film not found" };
       return;
     }
-    const body = await ctx.request.body().value;
+    const body = await ctx.request.body.json();
     // Ici, on suppose que le body contient un FilmDTO complet, ajustez si besoin pour une mise à jour partielle
     const filmDTO: FilmDTO = body;
     // Conversion inversée pour avoir un Film modifiable
-    const filmUpdates: Partial<Film> = ConversionService.toFilm(filmDTO);
-    const updatedFilm = filmRepo.update(id, filmUpdates);
+    const filmUpdates: Partial<FilmDBO> = ConversionService.toFilmDBO(filmDTO);
+    const updatedFilm = await filmRepo.update(id, filmUpdates);
     ctx.response.status = 200;
-    ctx.response.body = ConversionService.toFilmDTO(updatedFilm as Film);
+    ctx.response.body = ConversionService.toFilmDTO(updatedFilm as FilmDBO);
   }
 
   // Supprime un film
   // Code HTTP - 204 No Content sur réussite, 404 Not Found si inexistant
   static async delete(ctx: RouterContext) {
-    const id = Number(ctx.params.id);
-    const success = filmRepo.delete(id);
+    const id = ctx.params.id!;
+    const success = await filmRepo.delete(id);
     if (!success) {
       ctx.response.status = 404;
       ctx.response.body = { message: "Film not found" };

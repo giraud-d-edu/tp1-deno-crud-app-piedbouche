@@ -1,34 +1,35 @@
 import { User } from "../models/users.model.ts";
+import { db } from "../db.ts";
+import { ObjectId } from "npm:mongodb@5.6.0";
 
 export class UserRepository {
-  private users: User[] = [];
-  private currentId = 1;
+  private userCollection = db.collection("users");
 
-  getAll(): User[] {
-    return this.users;
+  async getAll(): Promise<User[]> {
+    return await this.userCollection.find({}).toArray();
   }
 
-  getById(id: number): User | undefined {
-    return this.users.find(user => user.id === id);
+  async getById(id: string): Promise<User | null> {
+    return await this.userCollection.findOne({ _id: new ObjectId(id) });
   }
 
-  create(user: User): User {
-    user.id = this.currentId++;
-    this.users.push(user);
-    return user;
+  async create(user: User): Promise<User> {
+    delete user.id;
+    const insertedId = await this.userCollection.insertOne(user);
+    return { ...user, id: insertedId.toString() };
   }
 
-  update(id: number, userData: Partial<User>): User | undefined {
-    const user = this.getById(id);
-    if (!user) return undefined;
-    Object.assign(user, userData);
-    return user;
+  async update(id: string, userData: Partial<User>): Promise<User | null> {
+    const { modifiedCount } = await this.userCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: userData }
+    );
+    if (modifiedCount === 0) return null;
+    return await this.getById(id);
   }
 
-  delete(id: number): boolean {
-    const index = this.users.findIndex(user => user.id === id);
-    if (index === -1) return false;
-    this.users.splice(index, 1);
-    return true;
+  async delete(id: string): Promise<boolean> {
+    const deleteCount = await this.userCollection.deleteOne({ _id: new ObjectId(id) });
+    return deleteCount > 0;
   }
 }

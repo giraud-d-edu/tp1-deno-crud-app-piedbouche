@@ -2,22 +2,20 @@ import { RouterContext } from "https://deno.land/x/oak/mod.ts";
 import { UserRepository } from "../repositories/user.repository.ts";
 import { ConversionService } from "../services/conversion.service.ts";
 import { UserDTO } from "../dtos/user.dto.ts";
-import { User } from "../models/users.model.ts";
+import { UserDBO } from "../dbos/user.dbo.ts";
 
 const userRepo = new UserRepository();
 
 export class UserController {
-  // Récupère tous les utilisateurs - 200 OK
   static async getAll(ctx: RouterContext) {
-    const users: User[] = userRepo.getAll();
+    const users: UserDBO[] = await userRepo.getAll();
     ctx.response.status = 200;
     ctx.response.body = users.map(ConversionService.toUserDTO);
   }
 
-  // Récupère un utilisateur par son id - 200 OK si trouvé, 404 sinon
   static async getById(ctx: RouterContext) {
-    const id = Number(ctx.params.id);
-    const user = userRepo.getById(id);
+    const id = ctx.params.id!;
+    const user = await userRepo.getById(id);
     if (!user) {
       ctx.response.status = 404;
       ctx.response.body = { message: "User not found" };
@@ -27,20 +25,18 @@ export class UserController {
     ctx.response.body = ConversionService.toUserDTO(user);
   }
 
-  // Crée un nouvel utilisateur - 201 Created
   static async create(ctx: RouterContext) {
     const body = await ctx.request.body().value;
     const userDTO: UserDTO = body;
-    const user: User = ConversionService.toUser(userDTO);
-    const createdUser = userRepo.create(user);
+    const userDBO: UserDBO = ConversionService.toUserDBO(userDTO);
+    const createdUser = await userRepo.create(userDBO);
     ctx.response.status = 201;
     ctx.response.body = ConversionService.toUserDTO(createdUser);
   }
 
-  // Met à jour un utilisateur existant - 200 OK si mis à jour, 404 sinon
   static async update(ctx: RouterContext) {
-    const id = Number(ctx.params.id);
-    const existingUser = userRepo.getById(id);
+    const id = ctx.params.id!;
+    const existingUser = await userRepo.getById(id);
     if (!existingUser) {
       ctx.response.status = 404;
       ctx.response.body = { message: "User not found" };
@@ -48,16 +44,15 @@ export class UserController {
     }
     const body = await ctx.request.body().value;
     const userDTO: UserDTO = body;
-    const userUpdates: Partial<User> = ConversionService.toUser(userDTO);
-    const updatedUser = userRepo.update(id, userUpdates);
+    const userUpdates: Partial<UserDBO> = ConversionService.toUserDBO(userDTO);
+    const updatedUser = await userRepo.update(id, userUpdates);
     ctx.response.status = 200;
-    ctx.response.body = ConversionService.toUserDTO(updatedUser as User);
+    ctx.response.body = ConversionService.toUserDTO(updatedUser as UserDBO);
   }
 
-  // Supprime un utilisateur - 204 No Content si supprimé, 404 sinon
   static async delete(ctx: RouterContext) {
-    const id = Number(ctx.params.id);
-    const success = userRepo.delete(id);
+    const id = ctx.params.id!;
+    const success = await userRepo.delete(id);
     if (!success) {
       ctx.response.status = 404;
       ctx.response.body = { message: "User not found" };

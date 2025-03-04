@@ -1,34 +1,35 @@
 import { Acteur } from "../models/acteurs.model.ts";
+import { db } from "../db.ts";
+import { ObjectId } from "npm:mongodb@5.6.0";
 
 export class ActeurRepository {
-  private acteurs: Acteur[] = [];
-  private currentId = 1;
+  private acteurCollection = db.collection("acteurs");
 
-  getAll(): Acteur[] {
-    return this.acteurs;
+  async getAll(): Promise<Acteur[]> {
+    return await this.acteurCollection.find({}).toArray();
   }
 
-  getById(id: number): Acteur | undefined {
-    return this.acteurs.find(acteur => acteur.id === id);
+  async getById(id: string): Promise<Acteur | null> {
+    return await this.acteurCollection.findOne({ _id: new ObjectId(id) });
   }
 
-  create(acteur: Acteur): Acteur {
-    acteur.id = this.currentId++;
-    this.acteurs.push(acteur);
-    return acteur;
+  async create(acteur: Acteur): Promise<Acteur> {
+    delete acteur.id;
+    const insertedId = await this.acteurCollection.insertOne(acteur);
+    return { ...acteur, id: insertedId.toString() };
   }
 
-  update(id: number, acteurData: Partial<Acteur>): Acteur | undefined {
-    const acteur = this.getById(id);
-    if (!acteur) return undefined;
-    Object.assign(acteur, acteurData);
-    return acteur;
+  async update(id: string, acteurData: Partial<Acteur>): Promise<Acteur | null> {
+    const { modifiedCount } = await this.acteurCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: acteurData }
+    );
+    if (modifiedCount === 0) return null;
+    return await this.getById(id);
   }
 
-  delete(id: number): boolean {
-    const index = this.acteurs.findIndex(acteur => acteur.id === id);
-    if (index === -1) return false;
-    this.acteurs.splice(index, 1);
-    return true;
+  async delete(id: string): Promise<boolean> {
+    const deleteCount = await this.acteurCollection.deleteOne({ _id: new ObjectId(id) });
+    return deleteCount > 0;
   }
 }

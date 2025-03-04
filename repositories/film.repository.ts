@@ -1,34 +1,40 @@
 import { Film } from "../models/film.model.ts";
+import { db } from "../db.ts";
+import { ObjectId } from "npm:mongodb@5.6.0"; // Assurez-vous d'importer ObjectId
 
 export class FilmRepository {
-  private films: Film[] = [];
-  private currentId = 1;
+  // Référence à la collection "films" dans MongoDB
+  private filmCollection = db.collection("films");
 
-  getAll(): Film[] {
-    return this.films;
+  async getAll(): Promise<Film[]> {
+    // On récupère tous les documents
+    return await this.filmCollection.find({}).toArray();
   }
 
-  getById(id: number): Film | undefined {
-    return this.films.find(film => film.id === id);
+  async getById(id: string): Promise<Film | null> {
+    // Recherche par _id (de type ObjectId)
+    return await this.filmCollection.findOne({ _id: new ObjectId(id) });
   }
 
-  create(film: Film): Film {
-    film.id = this.currentId++;
-    this.films.push(film);
-    return film;
+  async create(film: Film): Promise<Film> {
+    // Supprimez l'id s'il existe, MongoDB va en générer un
+    delete film.id;
+    const insertedId = await this.filmCollection.insertOne(film);
+    // assignation de l'id inséré (converti en string ou ObjectId selon vos besoins)
+    return { ...film, id: insertedId.toString() };
   }
 
-  update(id: number, filmData: Partial<Film>): Film | undefined {
-    const film = this.getById(id);
-    if (!film) return undefined;
-    Object.assign(film, filmData);
-    return film;
+  async update(id: string, filmData: Partial<Film>): Promise<Film | null> {
+    const { modifiedCount } = await this.filmCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: filmData }
+    );
+    if(modifiedCount === 0) return null;
+    return await this.getById(id);
   }
 
-  delete(id: number): boolean {
-    const index = this.films.findIndex(film => film.id === id);
-    if (index === -1) return false;
-    this.films.splice(index, 1);
-    return true;
+  async delete(id: string): Promise<boolean> {
+    const deleteCount = await this.filmCollection.deleteOne({ _id: new ObjectId(id) });
+    return deleteCount > 0;
   }
 }
