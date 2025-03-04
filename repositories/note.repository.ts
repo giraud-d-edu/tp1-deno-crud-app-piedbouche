@@ -30,7 +30,7 @@ export class NoteRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const deleteCount = await this.noteCollection.deleteOne({ _id: new ObjectId(id) });
-    return deleteCount > 0;
+    const { deletedCount } = await this.noteCollection.deleteOne({ _id: new ObjectId(id) });
+    return deletedCount > 0;
   }
 }

@@ -36,7 +36,7 @@ export class FilmRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const deleteCount = await this.filmCollection.deleteOne({ _id: new ObjectId(id) });
-    return deleteCount > 0;
+    const { deletedCount } = await this.filmCollection.deleteOne({ _id: new ObjectId(id) });
+    return deletedCount > 0;
   }
 }

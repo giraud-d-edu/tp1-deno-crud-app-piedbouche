@@ -30,7 +30,7 @@ export class ActeurRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const deleteCount = await this.acteurCollection.deleteOne({ _id: new ObjectId(id) });
-    return deleteCount > 0;
+    const { deletedCount } = await this.acteurCollection.deleteOne({ _id: new ObjectId(id) });
+    return deletedCount > 0;
   }
 }
