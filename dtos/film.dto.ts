@@ -1,5 +1,5 @@
-import { ActeurDTO } from "./acteur.dto";
-import { NoteDTO } from "./note.dto";
+import { ActeurDTO } from "./acteur.dto.ts";
+import { NoteDTO } from "./note.dto.ts";
 
 export interface FilmDTO {
     titre: string;

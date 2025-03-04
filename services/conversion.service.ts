@@ -1,11 +1,11 @@
-import { Note } from "../models/note.model";
-import { NoteDTO } from "../dtos/note.dto";
-import { Film } from "../models/film.model";
-import { FilmDTO } from "../dtos/film.dto";
-import { Acteur } from "../models/acteurs.model";
-import { ActeurDTO } from "../dtos/acteur.dto";
-import { User } from "../models/users.model";
-import { UserDTO } from "../dtos/user.dto";
+import { Note } from "../models/note.model.ts";
+import { NoteDTO } from "../dtos/note.dto.ts";
+import { Film } from "../models/film.model.ts";
+import { FilmDTO } from "../dtos/film.dto.ts";
+import { Acteur } from "../models/acteurs.model.ts";
+import { ActeurDTO } from "../dtos/acteur.dto.ts";
+import { User } from "../models/users.model.ts";
+import { UserDTO } from "../dtos/user.dto.ts";
 
 export class ConversionService {
     static toNoteDTO(note: Note): NoteDTO {

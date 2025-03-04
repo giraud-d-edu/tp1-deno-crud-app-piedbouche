@@ -1,4 +1,4 @@
-import { Film } from "./film.model";
+import { Film } from "./film.model.ts";
 
 export interface Acteur {
     id: number;

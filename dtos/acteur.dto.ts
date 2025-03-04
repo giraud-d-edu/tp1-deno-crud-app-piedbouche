@@ -1,4 +1,4 @@
-import { FilmDTO } from "./film.dto";
+import { FilmDTO } from "./film.dto.ts";
 
 export interface ActeurDTO {
     nom: string;

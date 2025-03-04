@@ -1,5 +1,5 @@
-import { Acteur } from "./acteurs.model";
-import { Note } from "./note.model";
+import { Acteur } from "./acteurs.model.ts";
+import { Note } from "./note.model.ts";
 
 export interface Film {
   id: number;
