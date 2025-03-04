@@ -26,7 +26,7 @@ export class UserController {
   }
 
   static async create(ctx: RouterContext) {
-    const body = await ctx.request.body().value;
+    const body = await ctx.request.body.json();
     const userDTO: UserDTO = body;
     const userDBO: UserDBO = ConversionService.toUserDBO(userDTO);
     const createdUser = await userRepo.create(userDBO);
@@ -42,9 +42,10 @@ export class UserController {
       ctx.response.body = { message: "User not found" };
       return;
     }
-    const body = await ctx.request.body().value;
+    const body = await ctx.request.body.json();
     const userDTO: UserDTO = body;
     const userUpdates: Partial<UserDBO> = ConversionService.toUserDBO(userDTO);
+    delete userUpdates._id;
     const updatedUser = await userRepo.update(id, userUpdates);
     ctx.response.status = 200;
     ctx.response.body = ConversionService.toUserDTO(updatedUser as UserDBO);

@@ -20,9 +20,10 @@ export class NoteRepository {
   }
 
   async update(id: string, noteData: Partial<Note>): Promise<Note | null> {
+    const { _id, ...updateData } = noteData;
     const { modifiedCount } = await this.noteCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: noteData }
+      { $set: updateData }
     );
     if (modifiedCount === 0) return null;
     return await this.getById(id);

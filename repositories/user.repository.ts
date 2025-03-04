@@ -20,9 +20,10 @@ export class UserRepository {
   }
 
   async update(id: string, userData: Partial<User>): Promise<User | null> {
+    const { _id, ...updateData } = userData;
     const { modifiedCount } = await this.userCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: userData }
+      { $set: updateData }
     );
     if (modifiedCount === 0) return null;
     return await this.getById(id);

@@ -20,9 +20,10 @@ export class ActeurRepository {
   }
 
   async update(id: string, acteurData: Partial<Acteur>): Promise<Acteur | null> {
+    const { _id, ...updateData } = acteurData;
     const { modifiedCount } = await this.acteurCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: acteurData }
+      { $set: updateData }
     );
     if (modifiedCount === 0) return null;
     return await this.getById(id);

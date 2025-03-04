@@ -55,6 +55,8 @@ export class FilmController {
     const filmDTO: FilmDTO = body;
     // Conversion inversée pour avoir un Film modifiable
     const filmUpdates: Partial<FilmDBO> = ConversionService.toFilmDBO(filmDTO);
+    // Supprimez le champ _id des données de mise à jour
+    delete filmUpdates._id;
     const updatedFilm = await filmRepo.update(id, filmUpdates);
     ctx.response.status = 200;
     ctx.response.body = ConversionService.toFilmDTO(updatedFilm as FilmDBO);

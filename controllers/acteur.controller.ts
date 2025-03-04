@@ -45,6 +45,7 @@ export class ActeurController {
     const body = await ctx.request.body.json();
     const acteurDTO: ActeurDTO = body;
     const acteurUpdates: Partial<ActeurDBO> = ConversionService.toActeurDBO(acteurDTO);
+    delete acteurUpdates._id;
     const updatedActeur = await acteurRepo.update(id, acteurUpdates);
     ctx.response.status = 200;
     ctx.response.body = ConversionService.toActeurDTO(updatedActeur as ActeurDBO);

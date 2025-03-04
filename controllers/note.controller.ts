@@ -45,6 +45,7 @@ export class NoteController {
     const body = await ctx.request.body.json();
     const noteDTO: NoteDTO = body;
     const noteUpdates: Partial<NoteDBO> = ConversionService.toNoteDBO(noteDTO);
+    delete noteUpdates._id;
     const updatedNote = await noteRepo.update(id, noteUpdates);
     ctx.response.status = 200;
     ctx.response.body = ConversionService.toNoteDTO(updatedNote as NoteDBO);

@@ -25,11 +25,13 @@ export class FilmRepository {
   }
 
   async update(id: string, filmData: Partial<Film>): Promise<Film | null> {
+    // Supprimez le champ _id des données de mise à jour
+    const { _id, ...updateData } = filmData;
     const { modifiedCount } = await this.filmCollection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: filmData }
+      { $set: updateData }
     );
-    if(modifiedCount === 0) return null;
+    if (modifiedCount === 0) return null;
     return await this.getById(id);
   }
 
